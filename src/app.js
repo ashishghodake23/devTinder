@@ -1,15 +1,29 @@
 const express = require("express");
 const app = express();
-
 const connectDB = require("./Schemas/database")
+const UserModel = require("./models/user");
+
+
+
+app.post("/signup", async(req, res) => {
+    const user = new UserModel ({
+    firstName : "Virat",
+    lastName : "kolhi",
+    email : "virat@gnail.com",
+    password: "virat@12344"
+})
+await user.save();
+res.send("User Added Successfully !!!!")
+})
+
 
 connectDB().then(() => {
-    console.log("Database connected successfully");
     app.listen(7777, () => {
     console.log("Server listening");
+    console.log("Database connected successfully");
 })
 }) .catch((err)=>{
-    console.error("Database Connection Failed");
+    console.error("Database Connection Failed", err);
 })
 
 
