@@ -3,14 +3,17 @@ const app = express();
 const connectDB = require("./Schemas/database")
 const UserModel = require("./models/user");
 
+//Middleware for converting JSON TO JS Object
 app.use(express.json());
 
+// Post API
 app.post("/signup", async (req, res) => {
     const user = new UserModel(req.body)
     await user.save();
     res.send("User Added Successfully !!!!")
 })
 
+// Get API
 app.get("/feed", async (req, res) => {
     try {
         const user = await UserModel.find({})
@@ -33,6 +36,29 @@ app.get("/user", async (req, res) => {
 
 })
 
+// Delete API
+app.delete("/user", async (req, res) => {
+    const userId = req.body.userId
+    try {
+        const user = await UserModel.findByIdAndDelete(userId);
+        res.send(" Deleted Successfully");
+    } catch (err) {
+        res.status(404).send("Errorr", err.message)
+    }
+})
+
+// Update API
+app.patch("/user", async (req, res) => {
+    const userId = req.body.userId;
+    const data = req.body;
+
+    try {
+        const userUpdate = await UserModel.findByIdAndUpdate({ _id: userId }, data);
+        res.send("Updated Name Succesfully");
+    } catch (err) {
+        res.status(404).send("Cannot Update - Something went wrong")
+    }
+})
 
 connectDB().then(() => {
     app.listen(7777, () => {
