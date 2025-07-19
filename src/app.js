@@ -9,8 +9,12 @@ app.use(express.json());
 // Post API
 app.post("/signup", async (req, res) => {
     const user = new UserModel(req.body)
-    await user.save();
-    res.send("User Added Successfully !!!!")
+    try {
+        await user.save();
+        res.send("User Added Successfully !!!!")
+    } catch (err) {
+        res.status(404).send(err.message)
+    }
 })
 
 // Get API
