@@ -5,19 +5,41 @@ const UserModel = require("./models/user");
 
 app.use(express.json());
 
-app.post("/signup", async(req, res) => {
-    const user = new UserModel (req.body)
-await user.save();
-res.send("User Added Successfully !!!!")
+app.post("/signup", async (req, res) => {
+    const user = new UserModel(req.body)
+    await user.save();
+    res.send("User Added Successfully !!!!")
+})
+
+app.get("/feed", async (req, res) => {
+    try {
+        const user = await UserModel.find({})
+        res.send(user);
+    } catch (err) {
+        res.status(400).send("Data Not Found");
+    }
+
+})
+
+//Model.findOne Method
+app.get("/user", async (req, res) => {
+    const userEmail = req.body.email;
+    try {
+        const users = await UserModel.findOne({ email: userEmail })
+        res.send(users);
+    } catch (err) {
+        res.status(404).send("User Not Found")
+    };
+
 })
 
 
 connectDB().then(() => {
     app.listen(7777, () => {
-    console.log("Server listening");
-    console.log("Database connected successfully");
-})
-}) .catch((err)=>{
+        console.log("Server listening");
+        console.log("Database connected successfully");
+    })
+}).catch((err) => {
     console.error("Database Connection Failed", err);
 })
 
@@ -39,7 +61,7 @@ connectDB().then(() => {
 
 
 // app.get("/user", (req,res) => {
-//     console.log(req.query); 
+//     console.log(req.query);
 //     res.send({firstName:"Ashish", lastName:"Ghodake"})
 // })
 
