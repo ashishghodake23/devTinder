@@ -2,18 +2,47 @@ const express = require("express");
 const app = express();
 const connectDB = require("./Schemas/database")
 const UserModel = require("./models/user");
+const bcrypt = require('bcrypt');
 
 //Middleware for converting JSON TO JS Object
 app.use(express.json());
 
 // Post API
 app.post("/signup", async (req, res) => {
-    const user = new UserModel(req.body)
     try {
+        const { firstName, lastName, email, password } = req.body
+
+        const passwordHash = await bcrypt.hash(password,10);
+
+        const user = new UserModel({
+            firstName, lastName, email, password: passwordHash
+        })
         await user.save();
         res.send("User Added Successfully !!!!")
     } catch (err) {
         res.status(404).send(err.message)
+    }
+})
+
+// POST API
+app.post("/login", async (req,res)=> {
+    try {
+        const {email, password} = req.body
+
+        const user = await UserModel.findOne({email:email})
+        if(!user){
+            throw new Error("Invalid Credentials");
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password)
+        if(!isPasswordValid){
+            throw new Error("Invalid Credentials");
+        } else{
+            res.send("Login Successfully !!")
+        }
+
+    } catch (error) {
+        res.status(404).send("ERROR : " + error.message)
     }
 })
 
