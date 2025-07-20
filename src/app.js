@@ -3,9 +3,13 @@ const app = express();
 const connectDB = require("./Schemas/database")
 const UserModel = require("./models/user");
 const bcrypt = require('bcrypt');
+const cookiesParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+const {userAuth} = require('./middlewares/auth')
 
 //Middleware for converting JSON TO JS Object
 app.use(express.json());
+app.use(cookiesParser())
 
 // Post API
 app.post("/signup", async (req, res) => {
@@ -38,12 +42,39 @@ app.post("/login", async (req,res)=> {
         if(!isPasswordValid){
             throw new Error("Invalid Credentials");
         } else{
+            // 1. Create a JWT Token 
+           const token = jwt.sign({_id:user._id}, "DEV@TINDER123")
+
+            // 2. Add the token to cookie & send response back
+            res.cookie("token", token)
+
             res.send("Login Successfully !!")
         }
 
     } catch (error) {
         res.status(404).send("ERROR : " + error.message)
     }
+})
+
+// Get API
+app.get("/profile", userAuth, async(req, res) => {
+    try{
+        const user = req.user
+        res.send(user);
+    }catch {
+        throw new Error("lkdfhkdflkd")
+    }     
+})
+
+// POST API
+app.post("/connectionRequest",userAuth, async (req,res)=> {
+
+    try{
+        const user = req.user;
+        res.send("Connection Request send By : " + user.firstName)
+    }catch {
+        throw new Error("lkdfhkdflkd")
+    } 
 })
 
 // Get API
